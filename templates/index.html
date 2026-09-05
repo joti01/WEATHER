@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skycast | Rain prediction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark">+</span> SKYCAST</a>
+      <span class="status"><i></i> LOCAL MODEL ONLINE</span>
+    </header>
+
+    <section class="intro">
+      <p class="eyebrow">TOMORROW'S WEATHER / RANDOM FOREST</p>
+      <h1>Read the sky<br><em>before it arrives.</em></h1>
+      <p class="lede">Enter today's conditions to get a rain classification and percentage forecast from your trained models.</p>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="workspace">
+      <form class="forecast-form" method="post" action="{{ url_for('predict') }}">
+        <div class="form-heading"><span>01</span><h2>Atmospheric inputs</h2></div>
+        <div class="field-grid">
+          <label>Forecast date<input type="date" name="date" value="{{ today }}" required></label>
+          <label>Rain today<select name="rain_today"><option value="0">No</option><option value="1">Yes</option></select></label>
+          <label>Min temperature <b>°C</b><input type="number" name="min_temp" step="0.1" placeholder="7.2" required></label>
+          <label>Max temperature <b>°C</b><input type="number" name="max_temp" step="0.1" placeholder="16.8" required></label>
+          <label>Humidity at 9am <b>%</b><input type="number" name="humidity_9am" min="0" max="100" step="0.1" placeholder="62" required></label>
+          <label>Humidity at 3pm <b>%</b><input type="number" name="humidity_3pm" min="0" max="100" step="0.1" placeholder="45" required></label>
+          <label>Pressure at 9am <b>hPa</b><input type="number" name="pressure_9am" step="0.1" placeholder="1017.4" required></label>
+          <label>Pressure at 3pm <b>hPa</b><input type="number" name="pressure_3pm" step="0.1" placeholder="1014.9" required></label>
+          <label>Wind speed <b>km/h</b><input type="number" name="wind_speed" min="0" step="0.1" placeholder="19" required></label>
+          <label>Cloud cover <b>oktas</b><input type="number" name="cloud_cover" min="0" max="8" step="0.1" placeholder="4" required></label>
+          <label>Sunshine <b>hours</b><input type="number" name="sunshine" min="0" max="24" step="0.1" placeholder="6.5" required></label>
+          <label>Rainfall <b>mm</b><input type="number" name="rainfall" min="0" step="0.1" placeholder="0" required></label>
+          <label class="wide">Current rain probability <b>%</b><input type="number" name="rain_probability" min="0" max="100" step="0.1" placeholder="20" required></label>
+        </div>
+        <button class="submit" type="submit"><span>Run forecast</span><strong>→</strong></button>
+      </form>
+
+      <aside class="result-panel {% if result %}has-result{% endif %}">
+        <div class="form-heading"><span>02</span><h2>Forecast signal</h2></div>
+        {% if result %}
+          <div class="result-content">
+            <div class="orb {% if result.will_rain %}rain{% endif %}"><span>{{ result.percentage }}<small>%</small></span></div>
+            <p class="result-kicker">RAIN CLASSIFICATION</p>
+            <h2 class="result-title">{{ result.label }}</h2>
+            <p class="result-copy">Your model estimates a <strong>{{ result.percentage }}%</strong> chance of rain tomorrow.</p>
+            <div class="meter"><span style="width: {{ result.percentage }}%"></span></div>
+            <div class="result-meta"><span>MODEL AGREEMENT</span><strong>{{ result.confidence }}%</strong></div>
+          </div>
+        {% else %}
+          <div class="empty-result"><div class="empty-icon">☼</div><p>Your forecast will appear here after you enter the latest conditions.</p></div>
+        {% endif %}
+      </aside>
+    </div>
+    <footer><span>SKYCAST / WEATHER INTELLIGENCE</span><span>CLASSIFIER + PROBABILITY MODEL</span></footer>
+  </main>
+</body>
+</html>
