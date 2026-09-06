@@ -29,6 +29,6 @@ python -m pip install -r requirements.txt
 python app.py
 ```
 
-4. Open http://127.0.0.1:5000 in a browser.
+4. Open https://weather-n4kr.onrender.com in a browser.
 
 The form uses the 16 columns shown in the supplied sample. If a loaded scikit-learn model contains `feature_names_in_`, the app automatically follows that trained feature order.
